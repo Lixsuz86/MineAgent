@@ -3,7 +3,9 @@ const path = require("node:path");
 const fs = require("node:fs");
 
 const CORE_DIR = path.join(__dirname, "..", "core");
-const CONFIG_PATH = path.join(CORE_DIR, "config", "config.json");
+// app.asar içi salt okunur — kişisel config'i yazılabilir userData
+// dizinine koyuyoruz (Windows: %APPDATA%\MC AI Agent\config.json).
+const CONFIG_PATH = path.join(app.getPath("userData"), "config.json");
 const CONFIG_EXAMPLE_PATH = path.join(CORE_DIR, "config", "config.example.json");
 const PERSONAS_DIR = path.join(CORE_DIR, "config", "personas");
 
@@ -26,18 +28,6 @@ function createWindow() {
 
   mainWindow.setMenuBarVisibility(false);
   mainWindow.loadFile(path.join(__dirname, "renderer", "index.html"));
-
-  if (process.env.SCREENSHOT_TEST) {
-    mainWindow.webContents.once("did-finish-load", async () => {
-      await new Promise((r) => setTimeout(r, 400));
-      await mainWindow.webContents.executeJavaScript("document.getElementById(chr(119)+chr(104)+chr(105)+chr(115)+chr(112)+chr(101)+chr(114)+chr(45)+chr(109)+chr(111)+chr(100)+chr(101)+chr(108)+chr(45)+chr(112)+chr(97)+chr(116)+chr(104)).scrollIntoView();");
-      await new Promise((r) => setTimeout(r, 200));
-      const image = await mainWindow.webContents.capturePage();
-      require("node:fs").writeFileSync("/home/claude/screenshot_stt.png", image.toPNG());
-      console.log("SCREENSHOT_SAVED");
-      app.quit();
-    });
-  }
 }
 
 app.whenReady().then(createWindow);
@@ -56,6 +46,7 @@ ipcMain.handle("config:load", () => {
 });
 
 ipcMain.handle("config:save", (_event, configObject) => {
+  fs.mkdirSync(path.dirname(CONFIG_PATH), { recursive: true });
   fs.writeFileSync(CONFIG_PATH, JSON.stringify(configObject, null, 2), "utf-8");
   return { ok: true };
 });
@@ -80,10 +71,9 @@ ipcMain.handle("agent:start", async () => {
 
   try {
     // core/src ESM modülü; ana süreç CommonJS olduğu için dynamic import kullanıyoruz.
-    const { loadConfig } = await import(pathToFileUrl(path.join(CORE_DIR, "src", "config.js")));
     const { startAgent } = await import(pathToFileUrl(path.join(CORE_DIR, "src", "agent-runner.js")));
 
-    const config = loadConfig(CONFIG_PATH);
+    const config = loadCurrentConfig();
 
     agentHandle = await startAgent(config, {
       onLog: (line) => mainWindow?.webContents.send("agent:log", line),
