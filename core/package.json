@@ -1,0 +1,25 @@
+{
+  "name": "mc-ai-agent",
+  "version": "1.0.0",
+  "description": "Customizable AI companion agent for Minecraft — bring your own persona, LLM provider, and voice.",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "test:llm": "node src/llm/test-chat.js"
+  },
+  "keywords": [
+    "minecraft",
+    "ai",
+    "llm",
+    "mineflayer",
+    "agent"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "mineflayer": "^4.37.1",
+    "mineflayer-pathfinder": "^2.4.5"
+  }
+}

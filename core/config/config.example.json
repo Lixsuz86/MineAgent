@@ -1,0 +1,43 @@
+{
+  "persona": {
+    "name": "Example Bot",
+    "systemPrompt": "Sen meraklı ve arkadaş canlısı bir Minecraft yardımcısısın. Kısa, doğal cümlelerle konuş."
+  },
+  "llm": {
+    "provider": "groq",
+    "model": "llama-3.1-70b-versatile",
+    "apiKey": "env:GROQ_API_KEY",
+    "temperature": 0.8,
+    "maxTokens": 300
+  },
+  "minecraft": {
+    "host": "localhost",
+    "port": 25565,
+    "username": "AIAgent",
+    "version": false,
+    "auth": "offline"
+  },
+  "skin": {
+    "enabled": false,
+    "source": "url",
+    "value": "https://example.com/my-skin.png",
+    "command": "/skin set {value}"
+  },
+  "tts": {
+    "provider": "none",
+    "modelPath": "./models/en_US-amy-medium.onnx",
+    "apiKey": "env:ELEVENLABS_API_KEY",
+    "voiceId": "",
+    "postprocess": {
+      "pitchShift": 0,
+      "roboEffect": false
+    }
+  },
+  "behavior": {
+    "tickIntervalMs": 5000
+  },
+  "voiceChat": {
+    "whisperExecutable": "whisper-cli",
+    "whisperModelPath": "./models/ggml-base.bin"
+  }
+}
